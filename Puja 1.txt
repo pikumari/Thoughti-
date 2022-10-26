@@ -1,0 +1,351 @@
+// 0. Main Class 
+
+
+import org.modelmapper.ModelMapper;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+public class Samithas1Application {
+
+	public static void main(String[] args) {
+		SpringApplication.run(Samithas1Application.class, args);
+	}
+
+	
+    @Bean
+    RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+    
+    @Bean
+	public ModelMapper createTheObjectOfModelMapper() {
+		return new ModelMapper();
+	}
+}
+
+
+
+// 1.Controller
+
+
+
+  
+@CrossOrigin(origins= {"*"}, allowCredentials = "false" )
+@RestController
+@Configuration(proxyBeanMethods = false)
+public class Mycontroller {
+
+
+        @Autowired
+	private Myservices portalServices;
+    
+
+       // Create Order
+	@PostMapping("/order/create")
+	public Thoughti_In_Entity createController(@RequestBody Thoughti_In_Entity data) {
+		return this.portalServices.createData(data);
+	}
+
+	// Get Order by ID
+	@GetMapping("/order/{orderId}")
+	public Thoughti_In_Entity_dto getOrderById(@PathVariable int orderId) {
+		return this.portalServices.getOrderById(orderId);
+	}
+
+	// Get all orders
+	@GetMapping("/orders")
+	public List<Thoughti_In_Entity> getAllOrdersAndItems() {
+		return this.portalServices.getAllOrders();
+	}
+
+
+}
+
+
+ // 2.service 
+
+
+           @Service
+          public class Myservices {
+            
+
+        // Create Order
+	@PostMapping("/order/create")
+	public Thoughti_In_Entity createController(@RequestBody Thoughti_In_Entity data) {
+		return this.portalServices.createData(data);
+	}
+
+	// Get Order by ID
+	@GetMapping("/order/{orderId}")
+	public Thoughti_In_Entity_dto getOrderById(@PathVariable int orderId) {
+		return this.portalServices.getOrderById(orderId);
+	}
+
+	// Get all orders
+	@GetMapping("/orders")
+	public List<Thoughti_In_Entity> getAllOrdersAndItems() {
+		return this.portalServices.getAllOrders();
+	}
+
+
+}
+
+
+ // 3.repo
+
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.samithas.entity.Thoughti_In_Items_Entity;
+@Repository
+public interface Thoughti_in_items_repo extends JpaRepository<Thoughti_In_Items_Entity, Integer> {
+
+}
+
+---------------------------------------------------------------------------------
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.samithas.entity.Thoughti_In_Entity;
+@Repository
+public interface Thoughti_In_Repo extends JpaRepository<Thoughti_In_Entity, Integer> {
+
+}
+
+
+
+
+   
+ 
+ // 4.Entity
+
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
+@Entity
+public class Thoughti_In_Items_Entity {
+
+	@Id
+	private int itemId;
+	private String itemName;
+	private int itemUnitPrice;
+	private int itemQuantity;
+	@ManyToOne()
+	@JoinColumn(name = "order_id")
+	private Thoughti_In_Entity order;
+}
+
+
+----------------------------------------------------------------------------------------------------
+
+
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
+@Entity
+@Table(name = "Thoughti_In_Entity")
+public class Thoughti_In_Entity {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int orderId;
+	private String orderDate;
+	private String orderStatus;
+	@OneToMany(mappedBy = "order",cascade = CascadeType.ALL)
+	private List<Thoughti_In_Items_Entity> items;
+}
+
+
+ // 5.dto
+
+
+
+import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+@Setter
+@Getter
+public class Thoughti_In_Entity_dto {
+	private int orderId;
+	private String orderDate;
+	private String orderStatus;
+	private List<Thoughti_In_Items_dto> items;
+
+}
+
+-------------------------------------------------------------------------------------
+ 
+
+
+import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+@Setter
+@Getter
+public class Thoughti_In_Entity_dto {
+	private int orderId;
+	private String orderDate;
+	private String orderStatus;
+	private List<Thoughti_In_Items_dto> items;
+
+}
+
+
+
+//////////////////////////////////////////////////  Response ///////////////////////////////////////////////////
+
+
+POST - order/create	
+[
+	{
+		"orderDate" : "",
+		"items" :[
+			{	"itemName" :"",
+				"itemUnitPrice" : "",
+				"itemQuantity" : 4
+			},
+			{
+				"itemName" :"",
+				"itemUnitPrice" : "",
+				"itemQuantity" : 4
+			}
+		]
+	},
+	{
+		"orderDate" : "",
+		"items" :[
+			{
+				"itemName" :"",
+				"itemUnitPrice" : "",
+				"itemQuantity" : 4
+			},
+			{
+				"itemName" :"",
+				"itemUnitPrice" : "",
+				"itemQuantity" : 4
+			}
+		]
+	}
+]
+
+
+
+
+2. Get Order by ID
+
+
+{
+    "orderId": 13,
+    "orderDate": "4533",
+    "orderStatus": "Active",
+    "items": [
+        {
+            "itemId": 1,
+            "itemName": "Apple",
+            "itemUnitPrice": 100,
+            "itemQuantity": 12
+        },
+        {
+            "itemId": 2,
+            "itemName": "orange",
+            "itemUnitPrice": 100,
+            "itemQuantity": 12
+        }
+    ]
+}
+
+
+
+
+3 . list of Orders 
+
+
+{
+    "orderId": 11,
+    "orderDate": "4533",
+    "orderStatus": "Active",
+    "items": [
+        {
+            "itemId": 1,
+            "itemName": "Apple",
+            "itemUnitPrice": 100,
+            "itemQuantity": 12
+        },
+        {
+            "itemId": 2,
+            "itemName": "orange",
+            "itemUnitPrice": 100,
+            "itemQuantity": 12
+        }
+    ]
+}
+
+{
+    "orderId": 13,
+    "orderDate": "4533",
+    "orderStatus": "Active",
+    "items": [
+        {
+            "itemId": 3,
+            "itemName": "Apple",
+            "itemUnitPrice": 100,
+            "itemQuantity": 12
+        },
+        {
+            "itemId": 4,
+            "itemName": "orange",
+            "itemUnitPrice": 100,
+            "itemQuantity": 12
+        }
+    ]
+}
+
+{
+    "orderId": 14,
+    "orderDate": "4533",
+    "orderStatus": "Active",
+    "items": [
+        {
+            "itemId": 5,
+            "itemName": "Apple",
+            "itemUnitPrice": 100,
+            "itemQuantity": 12
+        },
+        {
+            "itemId": 6,
+            "itemName": "orange",
+            "itemUnitPrice": 100,
+            "itemQuantity": 12
+        }
+    ]
+}
+
+
